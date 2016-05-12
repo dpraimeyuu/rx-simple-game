@@ -68,7 +68,7 @@ const renderScene = (canvas, actors) => {
   drawStars(canvas, actors.stars);
   drawSpaceShip(canvas, actors.spaceShip);
 }
-debugger;
+
 const spaceShip$ = getHero$(canvas, {HERO_Y});
 const game$ = Rx.Observable.combineLatest(
     stars$,
