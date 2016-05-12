@@ -41,8 +41,18 @@ const drawEnemies = (canvas, enemies) => {
   });
 }
 
+const drawSpaceshipShots = (canvas, shots) => {
+  let ctx = canvas.getContext('2d');
+  shots.map((shot) => drawTriangle(ctx, Object.assign({}, shot, {
+    width: 5,
+    color: '#ffff00',
+    direction: 'up'
+  })));
+}
+
 export {
   drawStars,
   drawSpaceShip,
-  drawEnemies
+  drawEnemies,
+  drawSpaceshipShots
 };
