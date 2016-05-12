@@ -1,5 +1,6 @@
 import Rx from 'rx';
 import { curry, flatten } from 'ramda';
+import getHero$ from './hero';
 
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
@@ -11,6 +12,7 @@ canvas.height = window.innerHeight;
 
 const SPEED = 40;
 const STAR_NUMBER = 250;
+const HERO_Y = canvas.height - 30;
 
 const getRandom = (math) => math.random();
 const getRandomFromMath = getRandom.bind(null, Math);
@@ -43,18 +45,6 @@ const stars$ = Rx.Observable.range(1, STAR_NUMBER)
   .flatMap(animateStars$);
   // .subscribe(drawStars.bind(null, canvas));
 
-const HERO_Y = canvas.height - 30;
-const mouseMove$ = Rx.Observable.fromEvent(canvas, 'mousemove');
-const spaceShip$ = mouseMove$
-  .map((e) => ({
-    x: e.clientX,
-    y: HERO_Y
-  }))
-  .startWith({
-    x: canvas.width / 2,
-    y: HERO_Y
-  });
-
 const drawTriangle = (ctx, { x, y, width, color, direction }) => {
   ctx.fillStyle = color;
   ctx.beginPath();
@@ -78,7 +68,8 @@ const renderScene = (canvas, actors) => {
   drawStars(canvas, actors.stars);
   drawSpaceShip(canvas, actors.spaceShip);
 }
-
+debugger;
+const spaceShip$ = getHero$(canvas, {HERO_Y});
 const game$ = Rx.Observable.combineLatest(
     stars$,
     spaceShip$,
