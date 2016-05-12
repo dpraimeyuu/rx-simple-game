@@ -1,1 +1,1 @@
-import Rx from 'rx';
+import './src/js/app';
