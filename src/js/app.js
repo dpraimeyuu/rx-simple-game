@@ -40,5 +40,48 @@ const stars$ = Rx.Observable.range(1, STAR_NUMBER)
     size: getRandomFromMath()  * 3 + 1
   }))
   .toArray()
-  .flatMap(animateStars$)
-  .subscribe(drawStars.bind(null, canvas));
+  .flatMap(animateStars$);
+  // .subscribe(drawStars.bind(null, canvas));
+
+const HERO_Y = canvas.height - 30;
+const mouseMove$ = Rx.Observable.fromEvent(canvas, 'mousemove');
+const spaceShip$ = mouseMove$
+  .map((e) => ({
+    x: e.clientX,
+    y: HERO_Y
+  }))
+  .startWith({
+    x: canvas.width / 2,
+    y: HERO_Y
+  });
+
+const drawTriangle = (ctx, { x, y, width, color, direction }) => {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x - width, y);
+  ctx.lineTo(x, direction === 'up' ? y - width : y + width);
+  ctx.lineTo(x + width, y);
+  ctx.lineTo(x - width, y);
+  ctx.fill();
+}
+
+const drawSpaceShip = (canvas, point) => {
+  let ctx = canvas.getContext('2d');
+  drawTriangle(ctx, Object.assign(point, {
+    width: 20,
+    color: '#ff0000',
+    direction: 'up'
+  }));
+}
+
+const renderScene = (canvas, actors) => {
+  drawStars(canvas, actors.stars);
+  drawSpaceShip(canvas, actors.spaceShip);
+}
+
+const game$ = Rx.Observable.combineLatest(
+    stars$,
+    spaceShip$,
+    (stars, spaceShip) => ({stars, spaceShip})
+  )
+  .subscribe(renderScene.bind(null, canvas));
