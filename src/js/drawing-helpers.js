@@ -1,3 +1,6 @@
+import { getRandomInt } from './utils';
+const getRandomIntFromMath = getRandomInt.bind(null, Math);
+
 const drawStars = (canvas, stars) => {
   let ctx = canvas.getContext('2d');
   ctx.fillStyle = '#000000';
@@ -25,8 +28,21 @@ const drawSpaceShip = (canvas, point) => {
   }));
 }
 
+const drawEnemies = (canvas, enemies) => {
+  let ctx = canvas.getContext('2d');
+  enemies.map((enemy) => {
+    drawTriangle(ctx, Object.assign({}, enemy, {
+      width: 20,
+      color: '#00ff00',
+      direction: 'down'
+    }));
+
+    return enemy;
+  });
+}
+
 export {
-  drawTriangle,
   drawStars,
-  drawSpaceShip
+  drawSpaceShip,
+  drawEnemies
 };
