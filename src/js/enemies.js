@@ -49,7 +49,7 @@ export default function getEnemies$ (canvas, {
 
       return [...enemies, enemy]
         .filter(isVisibleOnCanvas)
-        .filter(isAlive);
+        .filter((enemy) => isAlive(enemy) || enemy.shots.length > 0);
     }, []);
 
   const animateEnemies$ = Rx.Observable.interval(ENEMY_UPDATE_FREQ);
