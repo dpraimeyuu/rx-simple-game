@@ -11,7 +11,7 @@ export default function heroShots (canvas, spaceShip$, {SHOOTING_SPEED = 15, SHO
   }
 
   const keyDown$ = Rx.Observable.fromEvent(canvas, 'keydown')
-    .filter((e) => e.keycode === SPACE_KEY);
+    .filter((e) => e.keycode == SPACE_KEY);
   const mouseClick$ = Rx.Observable.fromEvent(canvas, 'click');
 
   const playerFiring$ = Rx.Observable.merge(
@@ -26,6 +26,7 @@ export default function heroShots (canvas, spaceShip$, {SHOOTING_SPEED = 15, SHO
     spaceShip$,
     (shots, spaceShip) => ({x: spaceShip.x, timestamp: shots.timestamp})
   )
+  .startWith([])
   .distinctUntilChanged((shot) => shot.timestamp)
   .scan((shots, shot) => [...shots, {x: shot.x, y: HERO_Y }], []);
 
