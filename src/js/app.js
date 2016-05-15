@@ -56,10 +56,14 @@ const wasSpaceshipHitBy = (spaceShip, elements) =>
 const isGameOver = ({spaceShip, enemies}) => {
   let gameOver = false;
     enemies.map((enemy) => {
-      if(wasSpaceshipHitBy(spaceShip, enemy.shots) || wasSpaceshipHitBy(spaceShip, enemies)){
+      if(wasSpaceshipHitBy(spaceShip, enemy.shots)){
         gameOver = true;
       }
     });
+
+    if(wasSpaceshipHitBy(spaceShip, enemies.filter(isAlive))){
+      gameOver = true;
+    }
 
   return gameOver;
 }
