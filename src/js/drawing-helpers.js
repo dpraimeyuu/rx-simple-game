@@ -1,4 +1,4 @@
-import { getRandomInt } from './utils';
+import { getRandomInt, isAlive } from './utils';
 const getRandomIntFromMath = getRandomInt.bind(null, Math);
 
 const drawStars = (canvas, stars) => {
@@ -30,12 +30,15 @@ const drawSpaceShip = (canvas, point) => {
 
 const drawEnemies = (canvas, enemies) => {
   let ctx = canvas.getContext('2d');
-  enemies.map((enemy) => {
-    drawTriangle(ctx, Object.assign({}, enemy, {
-      width: 20,
-      color: '#00ff00',
-      direction: 'down'
-    }));
+  enemies
+  .map((enemy) => {
+    if(isAlive(enemy)){
+      drawTriangle(ctx, Object.assign({}, enemy, {
+        width: 20,
+        color: '#00ff00',
+        direction: 'down'
+      }));      
+    }
 
     enemy.shots.map((shot) => {
       drawTriangle(ctx, Object.assign({}, shot, {

@@ -1,11 +1,12 @@
 import Rx from 'rx';
+import { isAlive } from './utils';
 
 export default function getHero$ (canvas, {HERO_Y = 730} = {}) {
   const mouseMove$ = Rx.Observable.fromEvent(canvas, 'mousemove');
   return mouseMove$
     .map((e) => ({
       x: e.clientX,
-      y: HERO_Y
+      y: HERO_Y,
     }))
     .startWith({
       x: canvas.width / 2,

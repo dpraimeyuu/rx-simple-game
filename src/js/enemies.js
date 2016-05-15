@@ -1,14 +1,16 @@
 import Rx from 'rx';
-import { getRandom, getRandomInt, isVisible } from './utils';
+import { getRandom, getRandomInt, isVisible, isAlive } from './utils';
 const getRandomFromMath = getRandom.bind(null, Math);
 const getRandomIntFromMath = getRandomInt.bind(null, Math);
+const getRandomFloat = () => getRandomIntFromMath(0, 100) / 100;
 
 export default function getEnemies$ (canvas, {
     ENEMY_CREATION_FREQ = 1500,
     ENEMY_UPDATE_FREQ = 250,
     ENEMY_SHOOTING_FREQ = 750,
     ENEMY_SPEED = 15,
-    SHOOTING_SPEED = 15
+    SHOOTING_SPEED = 15,
+    ENEMY_SHOOTING_LIKELIHOOD = 1,
   } = {}) {
   const isVisibleOnCanvas = isVisible.bind(null, canvas);
   // side-effects here
@@ -23,6 +25,7 @@ export default function getEnemies$ (canvas, {
 
     return shot;
   };
+
   const createEnemies$ = Rx.Observable.interval(ENEMY_CREATION_FREQ)
     .scan((enemies) => {
       let enemy = {
@@ -31,14 +34,22 @@ export default function getEnemies$ (canvas, {
         shots: []
       };
 
+      const willShotBeFiredWithLikelihood = (shootingLikelihood, shootingChance) => shootingChance >= shootingLikelihood;
+      const willShotBeFired = willShotBeFiredWithLikelihood.bind(null, ENEMY_SHOOTING_LIKELIHOOD);
       Rx.Observable.interval(ENEMY_SHOOTING_FREQ).subscribe(() => {
         enemy.shots = enemy.shots
           .filter(isVisibleOnCanvas)
           .map(updateShot);
-        enemy.shots.push({x: enemy.x, y: enemy.y});
+
+        const shootingChance = getRandomFloat();
+        if(isAlive(enemy) && willShotBeFired(shootingChance)){
+          enemy.shots.push({x: enemy.x, y: enemy.y});
+        }
       });
 
-      return [...enemies, enemy].filter(isVisibleOnCanvas)
+      return [...enemies, enemy]
+        .filter(isVisibleOnCanvas)
+        .filter(isAlive);
     }, []);
 
   const animateEnemies$ = Rx.Observable.interval(ENEMY_UPDATE_FREQ);

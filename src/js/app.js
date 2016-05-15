@@ -1,5 +1,6 @@
 import Rx from 'rx';
 import { drawStars, drawSpaceShip, drawEnemies, drawSpaceshipShots } from './drawing-helpers';
+import { isCollision, isAlive } from './utils';
 import getHero$ from './hero';
 import getStars$ from './stars';
 import getEnemies$ from './enemies';
@@ -22,6 +23,7 @@ const ENEMY_CREATION_FREQ = 1500;
 const ENEMY_UPDATE_FREQ = 250;
 const ENEMY_SPEED = 7;
 const ENEMY_SHOOTING_FREQ = 200;
+const ENEMY_SHOOTING_LIKELIHOOD = 0.6;
 const ENEMY_SHOOTING_SPEED = ENEMY_SPEED * 6;
 
 const renderScene = (canvas, actors) => {
@@ -38,6 +40,7 @@ const enemies$ = getEnemies$(canvas, {
   ENEMY_UPDATE_FREQ,
   ENEMY_SPEED,
   ENEMY_SHOOTING_FREQ,
+  ENEMY_SHOOTING_LIKELIHOOD,
   SHOOTING_SPEED: ENEMY_SHOOTING_SPEED
  });
 const heroShots$ = getHeroShots$(canvas, spaceShip$, {
@@ -45,12 +48,39 @@ const heroShots$ = getHeroShots$(canvas, spaceShip$, {
   SHOOTING_FREQ,
   SHOOTING_SPEED: HERO_SHOOTING_SPEED
 });
+
+const wasSpaceshipHitBy = (spaceShip, elements) =>
+ elements
+  .some((element) => isCollision(element, spaceShip))
+
+const isGameOver = ({spaceShip, enemies}) => {
+  let gameOver = false;
+    enemies.map((enemy) => {
+      if(wasSpaceshipHitBy(spaceShip, enemy.shots) || wasSpaceshipHitBy(spaceShip, enemies)){
+        gameOver = true;
+      }
+    });
+
+  return gameOver;
+}
 const game$ = Rx.Observable.combineLatest(
     stars$,
     spaceShip$,
     enemies$,
     heroShots$,
-    (stars, spaceShip, enemies, heroShots) => ({stars, spaceShip, enemies, heroShots})
+    (stars, spaceShip, enemies, heroShots) => {
+      heroShots.map((shot) => {
+        enemies.map((enemy) => {
+          if(isAlive(enemy) && isCollision(shot, enemy)){
+            shot.x = shot.y = -100;
+            enemy.isDead = true;
+          }
+        });
+      });
+
+      return {stars, spaceShip, enemies, heroShots};
+    }
   )
   .sample(SPEED)
+  .takeWhile((actors) => !isGameOver(actors))
   .subscribe(renderScene.bind(null, canvas));
