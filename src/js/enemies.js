@@ -32,7 +32,6 @@ export default function getEnemies$ (canvas, {
       };
 
       Rx.Observable.interval(ENEMY_SHOOTING_FREQ).subscribe(() => {
-        debugger;
         enemy.shots = enemy.shots
           .filter(isVisibleOnCanvas)
           .map(updateShot);
