@@ -1,5 +1,4 @@
 import Rx from 'rx';
-
 const SPACE_KEY = 32;
 
 export default function heroShots (canvas, spaceShip$, {SHOOTING_SPEED = 15, SHOOTING_FREQ = 200, HERO_Y = 750} = {}) {

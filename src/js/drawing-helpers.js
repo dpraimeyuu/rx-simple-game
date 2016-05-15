@@ -37,6 +37,16 @@ const drawEnemies = (canvas, enemies) => {
       direction: 'down'
     }));
 
+    enemy.shots.map((shot) => {
+      drawTriangle(ctx, Object.assign({}, shot, {
+        width: 5,
+        color: '#00ffff',
+        direction: 'down'
+      }));
+
+      return shot;
+    });
+
     return enemy;
   });
 }
