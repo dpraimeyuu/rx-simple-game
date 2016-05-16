@@ -1,6 +1,6 @@
 import Rx from 'rx';
 import { drawStars, drawSpaceShip, drawEnemies, drawSpaceshipShots } from './drawing-helpers';
-import { isCollision, isAlive } from './utils';
+import { isCollision, isAlive, isGameOver } from './utils';
 import getHero$ from './hero';
 import getStars$ from './stars';
 import getEnemies$ from './enemies';
@@ -49,24 +49,6 @@ const heroShots$ = getHeroShots$(canvas, spaceShip$, {
   SHOOTING_SPEED: HERO_SHOOTING_SPEED
 });
 
-const wasSpaceshipHitBy = (spaceShip, elements) =>
- elements
-  .some((element) => isCollision(element, spaceShip))
-
-const isGameOver = ({spaceShip, enemies}) => {
-  let gameOver = false;
-    enemies.map((enemy) => {
-      if(wasSpaceshipHitBy(spaceShip, enemy.shots)){
-        gameOver = true;
-      }
-    });
-
-    if(wasSpaceshipHitBy(spaceShip, enemies.filter(isAlive))){
-      gameOver = true;
-    }
-
-  return gameOver;
-}
 const game$ = Rx.Observable.combineLatest(
     stars$,
     spaceShip$,

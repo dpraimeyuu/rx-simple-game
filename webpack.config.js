@@ -16,7 +16,7 @@ module.exports = {
   output: {
     filename: './dist/bundle.js'
   },
-  devtool: 'source-map',
+  devtool: ENV == 'production'? 'source-map' : 'cheap-module-source-map',
   module: {
     loaders: [
       {

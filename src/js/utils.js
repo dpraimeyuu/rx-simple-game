@@ -15,10 +15,30 @@ checkCoordinates({range: 20, coordinate: 'y'}, target1, target2)
 
 const isAlive = (element) => !element.isDead;
 
+const wasSpaceshipHitBy = (spaceShip, elements) =>
+ elements
+  .some((element) => isCollision(element, spaceShip))
+
+const isGameOver = ({spaceShip, enemies}) => {
+  let gameOver = false;
+    enemies.map((enemy) => {
+      if(wasSpaceshipHitBy(spaceShip, enemy.shots)){
+        gameOver = true;
+      }
+    });
+
+    if(wasSpaceshipHitBy(spaceShip, enemies.filter(isAlive))){
+      gameOver = true;
+    }
+
+  return gameOver;
+}
+
 export {
   getRandom,
   getRandomInt,
   isVisible,
   isCollision,
-  isAlive
+  isAlive,
+  isGameOver
 }
