@@ -37,7 +37,7 @@ const drawEnemies = (canvas, enemies) => {
         width: 20,
         color: '#00ff00',
         direction: 'down'
-      }));      
+      }));
     }
 
     enemy.shots.map((shot) => {
@@ -63,9 +63,17 @@ const drawSpaceshipShots = (canvas, shots) => {
   })));
 }
 
+const drawScore = (canvas, score, {x = 40, y = 43} = {}) => {
+  let ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 26px sans-serif';
+  ctx.fillText(`Score: ${score}`, x, y);
+}
+
 export {
   drawStars,
   drawSpaceShip,
   drawEnemies,
-  drawSpaceshipShots
+  drawSpaceshipShots,
+  drawScore
 };

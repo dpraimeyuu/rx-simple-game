@@ -1,10 +1,11 @@
 import Rx from 'rx';
-import { drawStars, drawSpaceShip, drawEnemies, drawSpaceshipShots } from './drawing-helpers';
+import { drawStars, drawSpaceShip, drawEnemies, drawSpaceshipShots, drawScore } from './drawing-helpers';
 import { isCollision, isAlive, isGameOver } from './utils';
 import getHero$ from './hero';
 import getStars$ from './stars';
 import getEnemies$ from './enemies';
 import getHeroShots$ from './hero-shots';
+import getScore$ from './score';
 
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
@@ -14,6 +15,7 @@ appRoot.appendChild(canvas);
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const SCORE_INCREASE = 100;
 const SPEED = 40;
 const STAR_NUMBER = 250;
 const HERO_Y = canvas.height - 30;
@@ -31,6 +33,7 @@ const renderScene = (canvas, actors) => {
   drawSpaceShip(canvas, actors.spaceShip);
   drawEnemies(canvas, actors.enemies);
   drawSpaceshipShots(canvas, actors.heroShots);
+  drawScore(canvas, actors.score);
 }
 
 const spaceShip$ = getHero$(canvas, { HERO_Y });
@@ -48,23 +51,26 @@ const heroShots$ = getHeroShots$(canvas, spaceShip$, {
   SHOOTING_FREQ,
   SHOOTING_SPEED: HERO_SHOOTING_SPEED
 });
+const { scoreSubject, score$ } = getScore$();
 
 const game$ = Rx.Observable.combineLatest(
     stars$,
     spaceShip$,
     enemies$,
     heroShots$,
-    (stars, spaceShip, enemies, heroShots) => {
+    score$,
+    (stars, spaceShip, enemies, heroShots, score) => {
       heroShots.map((shot) => {
         enemies.map((enemy) => {
           if(isAlive(enemy) && isCollision(shot, enemy)){
             shot.x = shot.y = -100;
             enemy.isDead = true;
+            scoreSubject.onNext(SCORE_INCREASE);
           }
         });
       });
 
-      return {stars, spaceShip, enemies, heroShots};
+      return {stars, spaceShip, enemies, heroShots, score};
     }
   )
   .sample(SPEED)
